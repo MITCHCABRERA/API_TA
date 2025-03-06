@@ -2,11 +2,10 @@ from django.urls import path, include
 from . import views 
 
 from rest_framework.routers import DefaultRouter
-from django.urls import path
 
-from .views import PostViewSet
+from .views import PostViewSet, create_post, like, news_feed, unlike
 from .views import CommentViewSet
-
+from rest_framework.authtoken.views import obtain_auth_token
 
 # urlpatterns = [
 #     path('users/', views.get_users, name='get_users'),
@@ -15,16 +14,21 @@ from .views import CommentViewSet
 #     path('posts/create/', views.create_post, name='create_post'),
 # ]
 
-
 router = DefaultRouter()
-#router.register(r'users', UserViewSet, basename = 'user')
-router.register(r'posts', PostViewSet, basename = 'post')
-router.register(r'comments', CommentViewSet, basename = 'comment')
+router.register(r'posts', PostViewSet, basename='post')
+router.register(r'comments', CommentViewSet, basename='comment')
 
 urlpatterns = [
-    # Include the the routers URL
-    path('', include(router.urls)),
+    path('', include(router.urls)),  # Includes all registered viewset routes
 
-    # User registration URL
-    path ('register/', views.register, name = 'register')
+    # User authentication & registration
+    path('register/', views.register, name='register'),  # User registration endpoint
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # Token authentication endpoint
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),  # OAuth authentication
+
+    # Post-related endpoints
+    path('create_post/', create_post, name='create_post'),  # Create a new post
+    path('posts/<int:post_id>/like/', like, name='like-post'),  # Like a specific post
+    path('posts/<int:post_id>/unlike/', unlike, name='unlike-post'),  # Unlike a specific post
+    path('feed/', news_feed, name='news-feed'),  # News feed (paginated posts)
 ]
