@@ -171,15 +171,16 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'APP': {
+            'client_id': 'YOUR_GOOGLE_CLIENT_ID',
+            'secret': 'YOUR_GOOGLE_CLIENT_SECRET',
+            'key': '',
+        }
     }
 }
+
 
 DRFSO2_URL_NAMESPACE = 'oauth2_provider'
 

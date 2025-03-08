@@ -3,7 +3,7 @@ from . import views
 
 from rest_framework.routers import DefaultRouter
 
-from .views import PostViewSet, create_post, like, news_feed, unlike
+from .views import GoogleLogin, PostViewSet, create_post, like, news_feed, unlike
 from .views import CommentViewSet
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -31,4 +31,5 @@ urlpatterns = [
     path('posts/<int:post_id>/like/', like, name='like-post'),  # Like a specific post
     path('posts/<int:post_id>/unlike/', unlike, name='unlike-post'),  # Unlike a specific post
     path('feed/', news_feed, name='news-feed'),  # News feed (paginated posts)
+    path('auth/google/login/', GoogleLogin.as_view(), name='google_login'),
 ]

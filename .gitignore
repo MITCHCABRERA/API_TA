@@ -1,1 +1,9 @@
 .env
+
+# Ignore specific Python files
+connectlyy/asgi.py
+connectlyy/wsgi.py
+connectlyy/__init__.py
+
+# Ignore compiled Python files
+__pycache__/
