@@ -8,7 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'content', 'created_at', 'likes_count', 'liked_by_user']
+        fields = ['id', 'author', 'content', 'created_at', 'privacy', 'likes_count', 'liked_by_user']
 
     def create(self, validated_data):
         """Overrides the default create method to convert the username into a User object before saving."""
@@ -23,8 +23,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_liked_by_user(self, obj):
         """Checks if the authenticated user has liked the post."""
-        user = self.context.get('request').user  # Get the currently authenticated user
-        return user.is_authenticated and user in obj.likes.all()  # Returns True if the user has liked the post
+        user = self.context.get('request').user if self.context.get('request') else None
+        return user and user.is_authenticated and user in obj.likes.all()
+
     
     def get_author(self, obj):
         """Returns the author's username instead of their ID for better readability in API responses."""

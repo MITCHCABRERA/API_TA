@@ -3,7 +3,7 @@ from . import views
 
 from rest_framework.routers import DefaultRouter
 
-from .views import GoogleLogin, PostViewSet, create_post, like, news_feed, unlike
+from .views import PostViewSet, create_post, like, news_feed, unlike
 from .views import CommentViewSet
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -12,6 +12,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 #     path('users/create/', views.create_user, name='create_user'),
 #     path('posts/', views.get_posts, name='get_posts'),
 #     path('posts/create/', views.create_post, name='create_post'),
+#     path('posts/<int:post_id>/like/', like, name='like-post'),  # Like a specific post
+#     path('posts/<int:post_id>/unlike/', unlike, name='unlike-post'),  # Unlike a specific post
 # ]
 
 router = DefaultRouter()
@@ -28,8 +30,5 @@ urlpatterns = [
 
     # Post-related endpoints
     path('create_post/', create_post, name='create_post'),  # Create a new post
-    path('posts/<int:post_id>/like/', like, name='like-post'),  # Like a specific post
-    path('posts/<int:post_id>/unlike/', unlike, name='unlike-post'),  # Unlike a specific post
     path('feed/', news_feed, name='news-feed'),  # News feed (paginated posts)
-    path('auth/google/login/', GoogleLogin.as_view(), name='google_login'),
 ]

@@ -12,11 +12,43 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from dj_rest_auth.registration.views import SocialLoginView
+from rest_framework import permissions
+from django.core.cache import cache  # ✅ Import cache
 
-class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to allow only admins to delete or modify posts/comments.
+    """
+    def has_permission(self, request, view):
+        # Allow GET, HEAD, or OPTIONS (safe methods) for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Allow modification if user is an admin
+        return request.user.is_authenticated and request.user.is_staff
+
+class IsOwnerOrAdmin(permissions.BasePermission):
+    """
+    Custom permission to allow only owners (or admins) to edit/delete their own posts/comments.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Allow GET, HEAD, or OPTIONS (safe methods) for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Allow modification if user is the owner or an admin
+        return obj.author == request.user or request.user.is_staff
+
+class CanViewPost(permissions.BasePermission):
+    """
+    Only allow viewing public posts or private posts if the user is the owner.
+    """
+    def has_object_permission(self, request, view, obj):
+        if obj.privacy == 'public':
+            return True
+        
+        # Only allow viewing private posts if the request user is the owner
+        return obj.author == request.user
 
 # User Registration View
 @api_view(['POST'])
@@ -37,22 +69,26 @@ def register(request):
     }, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure only logged-in users can access the feed
 def news_feed(request):
-    """
-    Retrieves a paginated list of posts ordered by creation date (newest first).
-    - Only authenticated users can access this feed.
-    - Uses Django REST Framework's `PageNumberPagination` to limit results per page.
-    - Each post is serialized using the `PostSerializer` for structured output.
-    """
-    
-    posts = Post.objects.all().order_by('-created_at')  # Sort by newest first
+    page_number = request.GET.get("page", "1")  # Get page number from query params
+
+    # Debugging: Print the requested page number
+    print(f"Requested Page: {page_number}")
+
+    posts = Post.objects.all().order_by('-created_at')  # Get all posts
+
     paginator = PageNumberPagination()
-    paginator.page_size = 10  # You can adjust this per request if needed
+    paginator.page_size = 10  # Set the page size
 
-    result_page = paginator.paginate_queryset(posts, request)
-    serializer = PostSerializer(result_page, many=True, context={'request': request})
+    try:
+        paginated_posts = paginator.paginate_queryset(posts, request)  # Apply pagination
+    except Exception as e:
+        return Response({"detail": f"Pagination Error: {str(e)}"}, status=400)
 
+    if not paginated_posts:  # If the page is empty, return a better message
+        return Response({"detail": "No more pages available."}, status=400)
+
+    serializer = PostSerializer(paginated_posts, many=True)
     return paginator.get_paginated_response(serializer.data)
 
 # Get Users View
