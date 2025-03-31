@@ -4,7 +4,7 @@ RBAC is implemented across multiple files in your Django project to control user
 
 1. permissions.py (Posts App)
 
-Custom permission classes are usually defined in this file. If this file exists in your project, it likely contains:
+Custom permission classes are usually defined in this file. It likely contains:
 
 IsAdminOrReadOnly: Allows only admin users to modify or delete posts/comments while permitting read access for others.
 
