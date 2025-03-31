@@ -1,8 +1,8 @@
-RBAC Implementation
+**RBAC Implementation**
 
 RBAC is implemented across multiple files in your Django project to control user permissions and access to resources. Below is a breakdown of the relevant files and their roles:
 
-1. permissions.py (If Exists)
+1. permissions.py (Posts App)
 
 Custom permission classes are usually defined in this file. If this file exists in your project, it likely contains:
 
@@ -39,7 +39,7 @@ Enforces RBAC at the routing level using Django REST Framework (DRF) ViewSets, w
 Ensures that only permitted fields are exposed to users based on roles and access levels.
 
 
-Caching Implementation Overview
+**Caching Implementation Overview**
 
 1. Django Settings Configuration
 
